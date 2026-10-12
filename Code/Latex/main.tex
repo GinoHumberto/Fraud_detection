@@ -1,0 +1,181 @@
+\documentclass[12pt,a4paper]{{article}}
+
+% --------------------------------------------------
+% IDIOMA Y TIPOGRAFÍA
+% --------------------------------------------------
+
+\usepackage{fontspec}
+\usepackage{polyglossia}
+
+\setdefaultlanguage{spanish}
+
+% Fuente Sans Serif
+\setsansfont{Helvetica}
+\setmainfont{Helvetica}
+\setmonofont{CMU Typewriter Text}
+
+% --------------------------------------------------
+% FORMATO GENERAL
+% --------------------------------------------------
+
+% Márgenes de 2 cm
+\usepackage[
+    a4paper,
+    top=2cm,
+    bottom=2cm,
+    left=2cm,
+    right=2cm
+]{geometry}
+
+% Interlineado 1,5
+\usepackage{setspace}
+\onehalfspacing
+
+% Incluye imágenes
+\usepackage{graphicx}
+\usepackage{tcolorbox} % Es para cuadros de colores
+\tcbuselibrary{breakable, skins} % Para poder partir un cuadro
+\usepackage{subcaption}
+
+% Math package
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+% Math graphic
+\usepackage{pgfplots}
+\usepackage{tikz}
+\usetikzlibrary{matrix, positioning, calc}
+\usepgfplotslibrary{fillbetween}
+\usetikzlibrary{positioning, arrows.meta}
+\pgfplotsset{compat=1.18}
+\usepackage{morefloats}
+\usepackage{booktabs}
+
+% Codigo
+\usepackage{listings}
+\tcbuselibrary{listings} % Es lo que permite usar t colorbox dentro de listings
+
+% Graficos de Matplot
+\newcommand{\mathdefault}[1][]{#1}
+
+% Referenciar indice
+\usepackage{xcolor}
+\usepackage{sectsty}
+
+\usepackage[colorlinks=true,
+    linkcolor=black,
+    urlcolor=black,
+    citecolor=black,
+    hypertexnames=false]{hyperref}
+
+% Citas a bibliografia o fuentes
+\usepackage[
+    backend=biber,  % Motor moderno para procesar las citas
+    language=spanish % Para que diga "y" en vez de "and" entre autores
+]{biblatex}
+\addbibresource{bibliografia.bib}
+\usepackage{url}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,   % Cambia a black para que el índice no sea azul
+    urlcolor=blue,     
+    citecolor=blue,
+    allbordercolors={white} % Quita recuadros si existieran
+}
+\setcounter{biburllcpenalty}{7000}
+\setcounter{biburlucpenalty}{8000}
+
+\usepackage{titlesec}
+
+\titleformat{\section}
+{\color{red}\normalfont\Large\bfseries}
+{\thesection}{1em}{}
+
+\titleformat{\subsection}
+{\color{red}\normalfont\large\bfseries}
+{\thesubsection}{1em}{}
+
+\titleformat{\subsubsection}
+{\color{red}\normalfont\normalsize\bfseries}
+{\thesubsubsection}{1em}{}
+
+% Entornos
+\input{entornos.tex}
+\title{\color{red}Unidad 10 - Grupo 17; Detección de Fraude}
+\author{\itshape Gino Anci, Franco Ricci, Sánchez Facundo, Cossio Pablo}
+\date{\small\today}
+
+\begin{document}
+    
+\begin{titlepage}
+    \newgeometry{a4paper, margin=2.5cm}
+    \thispagestyle{empty}
+    \sffamily
+    \centering
+
+    \vspace*{1.2cm}
+
+    \begin{center}
+    \begin{tikzpicture}
+        \node[red, font=\Large\sffamily,scale=2] at(6,0) {\textbf{UTN}};
+        \draw[red, very thick] (7.6,0.6) -- (7.6,-0.6);
+        \node[right=7pt, font=\large\sffamily, text width=6cm] at (7.6,0) {Universidad\\Tecnológica Nacional};
+    \end{tikzpicture}
+    \end{center}
+
+    \vfill
+
+    {\large\bfseries Diplomatura en Ciencia de Datos y Análisis Avanzado\par}
+
+    \vspace{0.35cm}
+
+    {\normalsize Unidad 10 --- Proyecto Final Integrador\par}
+
+    \vspace{0.9cm}
+
+    {\color{red}\rule{1.5cm}{1.5pt}\par}
+
+    \vspace{0.9cm}
+
+    % Título principal
+    {\bfseries\fontsize{21}{28}\selectfont
+        Detección de fraude en transacciones bancarias mediante aprendizaje automático\par}
+
+    \vspace{1.8cm}
+
+    {\color{black}\large GRUPO 17\par}
+
+    \vspace*{0.6cm}
+
+    % Integrantes
+    {\small INTEGRANTES\par}
+
+    \vspace{0.35cm}
+
+    {\normalsize
+        Gino Anci - Franco Ricci - Facundo Sánchez - Pablo Cossio\par}
+    \vfill
+
+    % Año
+    {\small2026\par}
+
+    \vspace*{0.3cm}
+
+    \restoregeometry
+\end{titlepage}
+
+
+    \tableofcontents    
+
+\input{chapter/1_Resumen.tex}
+\input{chapter/2_problema.tex}
+\input{chapter/3_Metodologia.tex}
+\input{chapter/4_Modelado.tex}
+\input{chapter/5_impacto.tex}
+\input{chapter/6_conclusion.tex}
+
+% --- BIBLIOGRAFÍA --- %
+\printbibliography[title={Fuentes y Bibliografía}]
+
+\end{document}

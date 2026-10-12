@@ -1,0 +1,49 @@
+% Fuentes, tamaño, diccionario mínimo de las 10 variables principales, muestra o tablas de nulos, outliers, problemas de calidad y decisiones de limpieza ya tomadas o pendientes.
+
+\section{Relevamiento de Fuentes de Datos a utilizar}
+
+El conjunto de datos utilizado en este proyecto fue obtenido de Kaggle y corresponde al dataset \textit{BankSim}. Este conjunto fue desarrollado por \textcite{inproceedings} con el objetivo de simular, de manera sintética, un sistema de pagos bancarios que reproduzca características propias de transacciones financieras reales.
+
+El dataset contiene información sobre las transacciones realizadas durante la simulación y se encuentra compuesto por diez variables, cuya descripción y tipo conceptual se presentan en el Cuadro~\ref{tab:variables_dataset}.
+
+\begin{table}[!htbp]
+    \centering
+    \caption{Variables incluidas en el dataset BankSim}
+    \label{tab:variables_dataset}
+    \begin{tabular}{lll}
+        \toprule
+        \textit{Variable} & \textit{Descripción} & \textit{Tipo conceptual} \\
+        \midrule
+        \texttt{step}        & Día de la simulación                    & Temporal \\
+        \texttt{customer}    & Identificador del cliente               & Categórica / ID \\
+        \texttt{age}         & Rango de edad del cliente               & Categórica ordinal \\
+        \texttt{gender}      & Género o tipo del cliente               & Categórica \\
+        \texttt{zipcodeOri}  & Código postal de origen del cliente     & Categórica \\
+        \texttt{merchant}    & Identificador del comercio              & Categórica / ID \\
+        \texttt{zipMerchant} & Código postal del comercio              & Categórica \\
+        \texttt{category}    & Categoría del comercio o de la compra   & Categórica \\
+        \texttt{amount}      & Importe de la transacción               & Numérica \\
+        \texttt{fraud}       & Indica si la transacción es fraudulenta & Variable objetivo binaria \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{nota}
+El dataset no contiene nulos ni outliers debido a errores en la carga de datos.
+\end{nota}
+
+\subsection{Tratamiento de los datos}
+
+\paragraph{Columnas eliminadas}
+
+Las columnas \texttt{age} y \texttt{gender} fueron eliminadas debido a que los autores de \textit{BankSim} indican que estas variables no fueron utilizadas para modelar el comportamiento de consumo de los agentes, los autores señalan: ``However, we did not programme the consumption behaviour of agents based on gender and age'' \parencite[p. 150]{inproceedings}.
+
+Asimismo, las columnas \texttt{zipcodeOri} y \texttt{zipMerchant} fueron eliminadas porque contienen un único valor en todo el dataset y, por lo tanto, no aportan información al modelo.
+
+\paragraph{Columnas transformadas}
+
+Mediante el \textit{feature engineering} propuesto por \textcite[sección 3.3]{leborgne2022fraud}, se generaron las variables \nolinkurl{tx_count_last_}\(n\)\nolinkurl{d} y \nolinkurl{avg_amount_last_}\(n\)\nolinkurl{d} para representar la actividad reciente de cada cliente. Asimismo, se crearon \nolinkurl{merchant_tx_delayed_}\(n\)\nolinkurl{d}, \nolinkurl{merchant_risk_}\(n\)\nolinkurl{d}, \nolinkurl{category_tx_delayed_}\(n\)\nolinkurl{d} y \nolinkurl{category_risk_}\(n\)\nolinkurl{d}, considerando un retraso de siete días en la disponibilidad de la información sobre fraude. En todos los casos, \(n \in \{1,7,30\}\) días.
+
+\begin{nota}
+Luego de las transformaciones, el dataset consta de 24 columnas, sin haber aplicado aún \textit{one-hot encoding}.
+\end{nota}

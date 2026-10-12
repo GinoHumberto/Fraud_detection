@@ -1,0 +1,7 @@
+\section{Conclusiones y recomendaciones}
+
+El proyecto permitió desarrollar un procedimiento de detección de fraude basado en aprendizaje supervisado, integrando exploración de datos, ingeniería de variables, validación temporal, comparación de modelos y una métrica orientada a la capacidad de investigación.
+
+La evaluación mostró que las características históricas pueden aportar información útil, aunque su efecto depende del algoritmo utilizado. Entre las ocho alternativas comparadas, la red neuronal \textit{Feed-Forward} con feature engineering fue la seleccionada por su CP@20 y AP en validación. En el conjunto de prueba obtuvo CP@20 de 0,2217, AP de 0,8902 y ROC-AUC de 0,9993.
+
+El principal aprendizaje metodológico es la importancia de definir indicadores coherentes con el problema de negocio. En este caso, la cantidad de clientes con fraude disponibles por día limita el valor alcanzable de CP@$k$; por eso, las diferencias entre modelos y períodos deben analizarse junto con esa restricción. Se recomienda conservar el enfoque temporal y el control de disponibilidad de etiquetas, y validar el sistema con datos más representativos antes de considerar cualquier uso operativo.

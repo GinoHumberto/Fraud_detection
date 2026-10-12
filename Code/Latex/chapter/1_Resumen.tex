@@ -1,0 +1,9 @@
+\section{Resumen ejecutivo}
+
+El presente proyecto aborda la detección de fraude en transacciones financieras mediante técnicas de aprendizaje automático supervisado. A partir del conjunto de datos sintético \textit{BankSim}, se desarrollaron y compararon modelos capaces de asignar un nivel de riesgo a las operaciones, con el objetivo de contribuir a la identificación de clientes potencialmente comprometidos.
+
+El trabajo se orienta a un escenario de prevención de fraude en una entidad financiera, donde la capacidad de revisar alertas es limitada. Se utilizó como indicador operativo la métrica \textit{Card Precision at k} (CP@$k$), que expresa qué proporción de los $k$ clientes seleccionados diariamente presenta fraude. Se estudiaron capacidades de 100 y 20 revisiones por día, complementando el análisis mediante \textit{Average Precision} (AP) y ROC-AUC, de acuerdo con la metodología propuesta en \cite{leborgne2022fraud}.
+
+Se compararon una regresión logística como modelo de referencia, \textit{Random Forest}, XGBoost y una red neuronal \textit{Feed-Forward}. El mejor resultado de validación para CP@20 correspondió a la red neuronal con feature engineering (0,3000). Este modelo se evaluó finalmente en un conjunto temporal de prueba independiente y obtuvo CP@20 de 0,2217, AP de 0,8902 y ROC-AUC de 0,9993.
+
+En la prueba, el procedimiento permitió identificar 102 de los 104 clientes con fraude presentes en el conjunto evaluable, considerando un máximo de 20 revisiones diarias durante 23 días. Este resultado describe el desempeño sobre datos simulados y no debe interpretarse como una estimación directa del ahorro económico ni como garantía de resultados equivalentes en una entidad real.

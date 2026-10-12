@@ -1,0 +1,112 @@
+\section{Modelado y evaluación}
+
+\subsection{Modelos considerados}
+Se evaluaron cuatro alternativas de clasificación supervisada. La regresión logística se adoptó como \textit{baseline}, por ser una referencia sencilla de interpretar. \textit{Random Forest} y XGBoost permitieron evaluar modelos basados en \textit{árboles}, capaces de representar relaciones no lineales. Por último, se entrenó una red neuronal \textit{Feed-Forward} con dos capas ocultas de 500 neuronas y activación ReLU, \textit{dropout} de 0,2 después de cada capa y salida sigmoide.
+
+La red neuronal se optimizó con Adam y entropía cruzada binaria; se estableció un máximo de 100 \textit{epochs}, lotes de 128 ejemplos y detención temprana con paciencia de cinco \textit{epochs} según el PR-AUC de validación. Los modelos restantes se ejecutaron con los parámetros predefinidos por scikit-learn sin una búsqueda sistemática de hiperparámetros. Cada algoritmo se entrenó en dos variantes: con y sin las dieciocho variables históricas.
+
+\subsection{Métricas y criterio de selección}
+La evaluación consideró tres indicadores complementarios. \textit{ROC-AUC} resume la capacidad de ordenar operaciones fraudulentas por encima de las legítimas. \textit{Average Precision} integra el comportamiento de precisión y \textit{recall} a distintos umbrales, y resulta particularmente informativa para un problema de clases desbalanceadas \cite{handbook}. Su expresión es:
+\begin{equation}
+\label{eq:ap}
+AP=\sum_{i}(R_i-R_{i-1})P_i,
+\end{equation}
+donde $P_i$ y $R_i$ son la precisión y el \textit{recall} de los puntos evaluados.
+
+Para representar la restricción operativa se utilizó CP@$k$. En cada día se agrupan las operaciones por cliente, se conserva el mayor puntaje de riesgo asignado y se seleccionan los $k$ clientes más sospechosos. Un cliente con una o varias operaciones fraudulentas cuenta como una detección correcta. Después de identificarlo, se retira de las evaluaciones de los días posteriores. La métrica general es el promedio de las precisiones diarias:
+\begin{equation}
+\label{eq:cp}
+CP@k=\frac{1}{D}\sum_{d=1}^{D}\frac{C_{d,k}}{k},
+\end{equation}
+donde $D$ es el número de días y $C_{d,k}$ el número de clientes comprometidos correctamente detectados entre los primeros $k$ del día $d$.
+
+El anteproyecto propuso CP@100 como KPI principal, siguiendo el ejemplo del manual. Sin embargo, en esta simulación el número de clientes comprometidos por día es reducido: en los 23 días de validación hay solamente 142 clientes distintos con fraude. Con una política de retirar clientes ya detectados, el límite de CP@100 es $142/(23\times100)=0,0617$. La regresión logística alcanzó ese valor, lo que hizo poco informativa esta capacidad para distinguir alternativas en la etapa de selección. Por ello se utilizó CP@20 como criterio operativo prioritario, manteniendo AP y ROC-AUC como medidas de apoyo.
+
+\subsection{Resultados en validación}
+Los resultados obtenidos con los ocho experimentos se presentan en el Cuadro~\ref{tab:validacion}. Todas las cifras proceden de las salidas calculadas del notebook sobre el conjunto de validación filtrado, correspondiente a los días 127--149.
+
+\begin{table}[!htbp]
+\centering
+\small
+\caption{Comparación de modelos sobre validación}
+\label{tab:validacion}
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+\textbf{Modelo} & \textbf{Variables históricas} & \textbf{CP@20} & \textbf{AP} & \textbf{ROC-AUC} \\
+\midrule
+Regresión logística & Sin & 0,2826 & 0,7555 & 0,9975 \\
+Regresión logística & Con & 0,2848 & 0,7985 & 0,9978 \\
+Random Forest & Sin & 0,2696 & 0,7091 & 0,9303 \\
+Random Forest & Con & 0,2957 & 0,8611 & 0,9959 \\
+XGBoost & Sin & 0,2913 & 0,7891 & 0,9984 \\
+XGBoost & Con & 0,2870 & 0,7075 & 0,9797 \\
+Red neuronal & Sin & 0,2913 & 0,8318 & 0,9984 \\
+\textbf{Red neuronal} & \textbf{Con} & \textbf{0,3000} & \textbf{0,8890} & \textbf{0,9993} \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+{\footnotesize Valores redondeados a cuatro decimales.}
+\end{table}
+
+La ingeniería de variables mejoró la AP en la regresión logística, Random Forest y la red neuronal, aunque no ocurrió lo mismo con XGBoost. En particular, la AP de la red neuronal pasó de 0,8318 sin antecedentes a 0,8890 con ellos, una diferencia de aproximadamente 0,0573 puntos. Su CP@20 aumentó de 0,2913 a 0,3000. En cambio, XGBoost presentó una disminución de AP y CP@20 al incorporar las nuevas variables. Por lo tanto, los resultados respaldan la utilidad de las características históricas para algunos algoritmos, pero no una mejora generalizada.
+
+% \begin{figure}[!htbp]
+% \centering
+% \begin{tikzpicture}
+% \begin{axis}[
+%     width=0.91\linewidth,height=6.0cm,
+%     ybar,bar width=9pt,
+%     ymin=0,ymax=1,
+%     ylabel={Average Precision},
+%     symbolic x coords={Logística,Forest,XGBoost,Red neuronal},
+%     xtick=data,
+%     x tick label style={font=\small},
+%     y tick label style={font=\small},
+%     legend style={at={(0.5,1.14)},anchor=south,legend columns=2,draw=none,font=\small},
+%     grid=major,grid style={gray!15},
+%     axis x line*=bottom,axis y line*=left,
+%     enlarge x limits=0.15
+% ]
+% \addplot[fill=blue!50,draw=blue!80!black] coordinates {
+%  (Logística,0.755506) (Forest,0.709099) (XGBoost,0.789103) (Red neuronal,0.831752)};
+% \addplot[fill=pink!50,draw=pink!80!black] coordinates {
+%  (Logística,0.798490) (Forest,0.861130) (XGBoost,0.707471) (Red neuronal,0.889045)};
+% \legend{Sin variables históricas,Con variables históricas}
+% \end{axis}
+% \end{tikzpicture}
+% \caption{Average Precision con y sin ingeniería de variables, calculada en validación.}
+% \label{fig:ap}
+% \end{figure}
+
+\begin{figure}[!htbp]
+    \centering
+    \resizebox{1\textwidth}{!}{\input{../rendimiento_modelos.pgf}}
+    \caption{Average Precision con y sin ingeniería de variables, calculada en validación.}
+    \label{fig:ap}
+\end{figure}
+
+
+El mejor desempeño de CP@20 y AP en validación correspondió a la red neuronal con ingeniería de variables. Frente a la regresión logística con variables históricas, su CP@20 mejoró 0,0152 puntos y su AP 0,0906 puntos. Sobre esta base se seleccionó la red neuronal para la única evaluación final en prueba.
+
+\subsection{Evaluación final sobre el conjunto de prueba}
+El conjunto de prueba filtrado comprendió 58.305 operaciones entre los días 157 y 179, de las cuales 113 fueron fraudulentas. La red neuronal seleccionada produjo los siguientes resultados:
+
+\begin{table}[!htbp]
+\centering
+\caption{Resultados del modelo seleccionado en prueba}
+\label{tab:test}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+\textbf{Métrica} & \textbf{Validación} & \textbf{Prueba} \\
+\midrule
+Card Precision@20 & 0,3000 & 0,2217 \\
+Average Precision & 0,8890 & 0,8902 \\
+ROC-AUC & 0,9993 & 0,9993 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\end{table}
+
+La disminución de CP@20 en prueba debe interpretarse considerando el número de clientes comprometidos disponibles. En validación, un total de 142 clientes distintos con fraude establece un máximo de $142/(23\times20)=0,3087$. El modelo alcanzó $138/(23\times20)=0,3000$. En prueba, los 104 clientes comprometidos fijan un máximo de $104/(23\times20)=0,2261$ y el resultado obtenido equivale a $102/(23\times20)=0,2217$. De este modo, aunque la métrica absoluta es menor en prueba, también lo es el máximo posible bajo el escenario evaluado.
+
+En esta simulación se identificaron 102 de 104 clientes comprometidos presentes en prueba (98,1\%). Esta cifra no equivale a un \textit{recall} de transacciones ni garantiza la misma proporción de detección sobre datos reales. Del mismo modo, los valores elevados de AP y ROC-AUC se interpretan en el contexto del conjunto sintético y no constituyen evidencia suficiente de una generalización a una entidad bancaria.

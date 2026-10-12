@@ -1,0 +1,32 @@
+% Objetivo medible, hipótesis de trabajo, restricciones conocidas y valor esperado.
+
+\section{Definición del problema y caso de negocio}
+
+El fraude financiero constituye una problemática relevante por las pérdidas económicas y los riesgos asociados al creciente uso de medios de pago digitales. Según \textcite{causa}, en 2026 el 43\% de los argentinos manifestó haber sufrido algún tipo de fraude o hackeo digital.
+
+A partir de esta problemática, el grupo propone abordar la detección de fraude mediante las técnicas adquiridas durante la diplomatura, en un área de interés para el desarrollo profesional de sus integrantes.
+
+\subsection{Objetivo}
+
+El objetivo del proyecto es desarrollar y evaluar distintos modelos de clasificación capaces de detectar operaciones fraudulentas a partir de los datos disponibles, buscando maximizar la detección de fraudes y reducir la cantidad de operaciones legítimas clasificadas incorrectamente como fraudulentas.
+
+\subsection{hipótesis}
+
+Se plantea como hipótesis que es posible identificar patrones asociados a operaciones fraudulentas mediante técnicas de aprendizaje automático supervisado, permitiendo detectar este tipo de operaciones de manera eficiente y con un nivel de precisión adecuado.
+
+\subsection{Restricciones}
+
+El proyecto se encuentra condicionado por las características del dataset seleccionado y por dificultades propias de la detección de fraude. Según \textcite[sección 4.3]{leborgne2022fraud}, entre las principales se encuentran:
+
+\begin{itemize}
+\item \textit{Class imbalance}: los fraudes representan una pequeña proporción de las transacciones.
+\item \textit{Concept drift}: los patrones de fraude pueden cambiar con el tiempo.
+\item \textit{Near real-time requirements}: la detección debe realizarse con baja latencia.
+\item \textit{Categorical features}: las variables categóricas requieren un tratamiento adecuado.
+\item \textit{Class overlap}: fraudes y operaciones legítimas pueden presentar características similares.
+\item \textit{Performance measures}: métricas como la exactitud pueden ser inadecuadas ante clases desbalanceadas.
+\end{itemize}
+
+\subsection{Valor esperado}
+
+Se espera desarrollar un modelo capaz de distinguir entre operaciones legítimas y fraudulentas, detectando la mayor cantidad posible de fraudes sin generar una cantidad excesiva de falsas alarmas.

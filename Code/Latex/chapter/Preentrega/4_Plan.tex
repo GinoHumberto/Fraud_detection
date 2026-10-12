@@ -1,0 +1,30 @@
+% Métricas a reportar, esquema de validación (CV/holdout), umbrales de éxito y benchmark de negocio.
+
+\section{Plan de modelado y validación}
+
+\subsection{Métricas}
+Para evaluar el rendimiento de los modelos se utilizarán métricas empleadas en \textcite[sección 4]{leborgne2022fraud}:
+\begin{itemize}
+\item \textit{ROC-AUC}: evalúa la capacidad del modelo para discriminar entre transacciones fraudulentas y legítimas.
+\item \textit{Average Precision (AP)}: resume la relación entre precisión y \textit{recall}, y se calcula como
+\(
+    AP=\sum_n(R_n-R_{n-1})P_n,
+\)
+donde \(P_n\) y \(R_n\) representan la precisión y el \textit{recall} en cada punto.
+
+\item \textit{Card Precision at \(k\)}: proporción de clientes fraudulentos entre los \(k\) clientes con mayor riesgo asignado por el modelo, donde \(k=100\) al igual que en el libro de \textcite{leborgne2022fraud}.
+\end{itemize}
+
+\subsection{Esquema de validación}
+
+Debido al carácter temporal de las transacciones, la validación se realizará respetando el orden cronológico de los datos. Los modelos serán entrenados con transacciones anteriores y evaluados sobre períodos posteriores, evitando una partición aleatoria que pudiera introducir información futura en el entrenamiento.
+
+Se considerará un retraso de siete días en la disponibilidad de las etiquetas de fraude, de manera consistente con las variables construidas durante el \textit{feature engineering}.
+
+\subsection{Modelos y baseline}
+
+Se establecerá como \textit{baseline} la regresión logística, a partir de la cual se evaluará si modelos de mayor complejidad producen mejoras en las métricas seleccionadas. 
+
+\begin{nota}
+    Se considerará una mejora respecto del benchmark cuando un modelo supere al baseline en la medida \textit{Card Precision at \(k\)}.
+\end{nota}

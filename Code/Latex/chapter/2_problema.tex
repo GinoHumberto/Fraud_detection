@@ -1,0 +1,15 @@
+\section{Definición del problema y relevancia}
+
+El fraude en los medios de pago representa un problema para las entidades financieras debido a las operaciones no autorizadas, las posibles pérdidas económicas y la necesidad de destinar recursos a su investigación. Su detección presenta dificultades asociadas al desbalance entre transacciones legítimas y fraudulentas, a la evolución de los patrones de fraude y a las restricciones operativas de los equipos de prevención \cite{leborgne2022fraud}.
+
+El proyecto plantea un caso de negocio hipotético: una entidad financiera dispone de un conjunto de transacciones y debe decidir cuáles revisar primero. No resulta suficiente clasificar correctamente un porcentaje elevado de operaciones, dado que la mayoría es legítima. El problema consiste en ordenar las alertas de manera que las revisiones disponibles se concentren sobre clientes realmente comprometidos.
+
+\subsection{Objetivo e hipótesis}
+El objetivo es desarrollar y evaluar modelos de clasificación que permitan detectar operaciones fraudulentas, buscando maximizar la cantidad de clientes comprometidos identificados y limitar las revisiones de operaciones legítimas. De manera medible, se propone superar el desempeño de una regresión logística de referencia, dando prioridad a CP@20 ante un escenario de capacidad operativa restringida.
+
+Se plantea como hipótesis que las características de las transacciones y los antecedentes recientes de clientes, comercios y categorías permiten reconocer patrones asociados al fraude. Para contrastarla, se compararon modelos entrenados con las variables originales disponibles y modelos que incorporan variables históricas realizadas con feature engineering.
+
+\subsection{Alcance y restricciones}
+El proyecto no contempla el despliegue de un sistema productivo. Se trabaja con información sintética, por lo que los resultados sirven para estudiar y comparar alternativas metodológicas, pero no permiten validar su rendimiento sobre transacciones bancarias reales. Además, el dataset identifica a cada \texttt{customer} sin proporcionar un identificador independiente de tarjeta. Por este motivo, se adopta el cliente como unidad equivalente a la tarjeta o cuenta comprometida al calcular CP@$k$.
+
+Se considera un retraso de siete días para disponer de las etiquetas de fraude. Esta restricción se incorpora tanto a la generación de antecedentes de riesgo como a la simulación de clientes previamente identificados.

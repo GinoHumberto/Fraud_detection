@@ -1,0 +1,102 @@
+\section{Datos y metodología}
+
+El desarrollo se organizó comprendiendo el problema de negocio, comprendiendo y preparando los datos, modelando y evaluando. La fase de despliegue se dejó fuera del alcance, dado que el objetivo es comparar alternativas sobre una base reproducible.
+
+\subsection{Fuente y relevamiento de datos}
+El conjunto de datos utilizado es \textit{BankSim}, disponible públicamente en Kaggle \cite{dataset}. Fue desarrollado por López-Rojas y Axelsson \cite{inproceedings} como un simulador de pagos bancarios que permite generar transacciones sintéticas para investigaciones sobre detección de fraude.
+
+El archivo analizado contiene 594.643 transacciones y diez columnas, con operaciones distribuidas entre los días 0 y 179 de la simulación. La variable objetivo es \texttt{fraud}, que indica si una transacción fue etiquetada como fraudulenta.
+
+\begin{table}[!htbp]
+\centering
+\small
+\caption{Variables originales del conjunto BankSim}
+\label{tab:variables}
+\begin{tabular}{@{}p{2.65cm}p{6.0cm}p{3.3cm}@{}}
+\toprule
+\textbf{Variable} & \textbf{Descripción} & \textbf{Tipo} \\
+\midrule
+\texttt{step} & Día de la simulación & Temporal \\
+\texttt{customer} & Identificador del cliente & Identificador \\
+\texttt{age} & Rango de edad del cliente & Categórica \\
+\texttt{gender} & Género o tipo de cliente & Categórica \\
+\texttt{zipcodeOri} & Código postal del cliente & Categórica \\
+\texttt{merchant} & Identificador del comercio & Identificador \\
+\texttt{zipMerchant} & Código postal del comercio & Categórica \\
+\texttt{category} & Categoría de compra o comercio & Categórica \\
+\texttt{amount} & Importe de la transacción & Numérica \\
+\texttt{fraud} & Etiqueta de fraude (0 o 1) & Objetivo binario \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\end{table}
+
+\subsection{Exploración inicial y calidad}
+El análisis de datos exploratorio (EDA) comenzó con la verificación de los tipos de variables, las dimensiones del conjunto y la presencia de valores faltantes. No se observaron valores nulos en las columnas conservadas para el modelado. Los textos se normalizaron eliminando las comillas simples que delimitaban sus valores.
+
+Se eliminaron \texttt{age} y \texttt{gender}, dado que los autores de BankSim aclaran que el comportamiento de consumo de los agentes no se programó en función de estas características \cite{inproceedings}. También se descartaron \texttt{zipcodeOri} y \texttt{zipMerchant}, que en el anteproyecto se identificaron como variables sin variación. Tras esta etapa quedaron seis columnas originales, incluida la variable objetivo.
+
+Como aproximación inicial a la relación con el fraude, se obtuvo una correlación de Pearson de 0,490 entre \texttt{amount} y \texttt{fraud}. Para las categorías, analizadas como indicadores binarios, se observaron asociaciones positivas en \texttt{es\_sportsandtoys} (0,364), \texttt{es\_travel} (0,250) y \texttt{es\_leisure} (0,248), y negativa en \texttt{es\_transportation} ($-0,263$). Estas relaciones son descriptivas del dataset y no implican causalidad. Asimismo, no se encontraron valores atípicos que pertenezcan a errores, por lo que se decidio conservar la mayor cantidad de información.
+
+\subsection{Ingeniería de variables}
+Siguiendo los lineamientos del manual de detección de fraude \cite{leborgne2022fraud}, se construyeron dieciocho variables adicionales para incorporar información histórica en ventanas de 1, 7 y 30 días. El procedimiento consideró tres niveles de agregación:
+
+\begin{table}[!htbp]
+\centering
+\small
+\caption{Variables generadas mediante \textit{feature engineering}}
+\label{tab:features}
+\begin{tabular}{@{}p{2.65cm}p{6.55cm}p{6cm}@{}}
+\toprule
+\textbf{Entidad} & \textbf{Variables} & \textbf{Información representada} \\
+\midrule
+Cliente & \texttt{tx\_count\_last\_nd}; \texttt{avg\_amount\_last\_nd} & Cantidad y monto promedio de transacciones recientes. \\
+Comercio & \texttt{merchant\_tx\_delayed\_nd}; \texttt{merchant\_risk\_nd} & Actividad y proporción de fraudes en antecedentes disponibles. \\
+Categoría & \texttt{category\_tx\_delayed\_nd}; \texttt{category\_risk\_nd} & Actividad y proporción de fraude de la categoría. \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+{\footnotesize En los nombres, \texttt{n} toma los valores 1, 7 y 30.}
+\end{table}
+
+Para calcular el riesgo histórico de un comercio o categoría se utilizó la relación entre fraudes observados y transacciones registradas en una ventana anterior:
+\begin{equation}
+\label{eq:riesgo}
+\operatorname{Riesgo}_{n} = \frac{\text{Fraudes históricos en }n\text{ días}}{\text{Transacciones históricas en }n\text{ días}}.
+\end{equation}
+
+Las ventanas de riesgo excluyen el día que se está evaluando y los siete días previos: para una transacción del día $t$, los antecedentes utilizados llegan hasta $t-8$. En ausencia de transacciones en la ventana, el indicador de riesgo se definió como cero. Las ventanas de cliente, en cambio, incluyen la operación actual; esta particularidad debe tenerse en cuenta si el procedimiento se adapta a un entorno de detección en tiempo real con marcas temporales más precisas.
+
+La idea de construir indicadores de importe anómalo respecto del comportamiento individual se consideró, pero no se incorporó a los experimentos finales. Después de la ingeniería de variables, el conjunto contó con 24 columnas antes de aplicar codificación categórica.
+
+\subsection{División temporal y filtrado de clientes}
+La separación se realizó por días, evitando mezclar observaciones anteriores y posteriores entre entrenamiento y evaluación. Se dejaron dos intervalos de siete días que representan el retraso de disponibilidad de las etiquetas.
+
+\begin{table}[!htbp]
+\centering
+\small
+\caption{Partición temporal y efecto del filtrado}
+\label{tab:splits}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+\textbf{Período} & \textbf{Días} & \textbf{Transacciones} & \textbf{Fraudes} & \textbf{Tras filtrado} \\
+\midrule
+Entrenamiento & 0--119 & 374.914 & 4.800 & 374.914 \\
+Espera & 120--126 & 24.986 & 280 & No evaluado \\
+Validación & 127--149 & 83.437 & 920 & 60.655 \\
+Espera & 150--156 & --- & --- & No evaluado \\
+Prueba & 157--179 & 85.380 & 920 & 58.305 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+{\footnotesize Las columnas de transacciones y fraudes corresponden a los periodos sin filtrar.}
+\end{table}
+
+Además de respetar el orden temporal, se eliminaron de validación y prueba las operaciones de clientes cuyo fraude ya debía ser conocido al momento de emitir la alerta. El criterio supone que \textit{una entidad financiera dejaría de investigar una cuenta que ya fue identificada y bloqueada}. Se incorporaron progresivamente al conjunto de clientes conocidos los fraudes ocurridos hasta el día $t-8$.
+
+El entrenamiento incluyó 4.111 clientes diferentes, de los cuales 1.166 presentaron al menos un fraude. El filtrado redujo las operaciones de validación de 83.437 a 60.655 y los fraudes de 920 a 160. En prueba, las operaciones se redujeron de 85.380 a 58.305 y los fraudes de 920 a 113. En los conjuntos filtrados se identificaron 142 clientes distintos con fraude en validación y 104 en prueba.
+
+La proporción de operaciones fraudulentas resultante fue de 1,280\% en entrenamiento, 0,264\% en validación y 0,194\% en prueba. Estas prevalencias reflejan, entre otros factores, el filtrado aplicado; por lo tanto, no deben compararse como si fueran muestras aleatorias equivalentes.
+
+\subsection{Preprocesamiento para el modelado}
+Se excluyeron \texttt{fraud}, \texttt{customer} y \texttt{step} de las variables predictoras: la primera es la etiqueta, mientras que las otras dos se conservaron para organizar el análisis temporal y calcular las métricas por cliente. Se utilizó un \texttt{ColumnTransformer} con \texttt{StandardScaler} para las variables numéricas y \texttt{OneHotEncoder} para \texttt{merchant} y \texttt{category}. El transformador se ajustó exclusivamente con el conjunto de entrenamiento y luego se aplicó a validación y prueba, con tratamiento de categorías no observadas durante el ajuste.

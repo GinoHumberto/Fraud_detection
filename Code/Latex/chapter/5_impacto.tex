@@ -1,0 +1,19 @@
+\section{Impacto en el negocio}
+
+La aplicación prevista consiste en ordenar diariamente las operaciones de mayor riesgo y agruparlas por cliente, a fin de presentar al equipo de prevención una lista priorizada de casos. En un escenario con capacidad para revisar 20 clientes por día, el procedimiento permite que la cantidad de alertas dependa de una restricción operativa explícita en lugar de un umbral arbitrario de probabilidad.
+
+Durante los 23 días de prueba se consideran hasta 460 revisiones cliente-día ($20\times23$). Con la evaluación realizada, 102 selecciones corresponden a clientes con fraude y las restantes 358 no presentan fraude en el día en que fueron seleccionadas. Es importante observar que estas revisiones no equivalen necesariamente a 358 personas diferentes, porque un mismo cliente sin fraude puede volver a figurar en jornadas posteriores.
+
+El resultado permite ilustrar un beneficio operativo potencial: priorizar casos relevantes en lugar de revisar operaciones sin orden de riesgo. Sin embargo, el dataset no contiene los costos reales de investigación, los importes recuperables ni la efectividad de las medidas posteriores al alerta. Por lo tanto, no es posible cuantificar de manera verificable un ahorro monetario o una reducción efectiva de pérdidas a partir de estos experimentos.
+
+\subsection{Riesgos, aspectos éticos y limitaciones}
+El carácter sintético de BankSim constituye una limitación central. Los patrones reproducidos por el simulador pueden diferir de los de una entidad real, y un desempeño elevado sobre estos datos no descarta problemas de generalización, cambios temporales de comportamiento o errores en nuevos escenarios.
+
+Adicionalmente, la etiqueta de fraude se conoce con retraso, el dataset no distingue tarjetas independientes de un mismo cliente y su resolución temporal es diaria. Estos aspectos simplifican el problema operativo y deben revisarse antes de implementar un sistema de detección en tiempo real. También es necesario examinar la calibración de los puntajes: un buen ordenamiento de casos no implica automáticamente que los valores predichos puedan interpretarse como probabilidades fiables.
+
+Los datos utilizados son sintéticos y no corresponden a transacciones personales identificables del mundo real \cite{inproceedings}. No obstante, una aplicación productiva requeriría controles de acceso, protección de datos personales, auditoría de las decisiones y revisión de posibles efectos adversos sobre grupos de clientes. La exclusión de edad y género del entrenamiento no demuestra por sí sola la ausencia de sesgos.
+
+\subsection{Pasos futuros}
+Como continuación del trabajo se propone evaluar otros períodos temporales, analizar la estabilidad de los resultados frente a cambios en la tasa de fraude y considerar una búsqueda controlada de hiperparámetros. También sería conveniente incorporar variables de anomalía de importe que utilicen exclusivamente antecedentes disponibles, revisar el tratamiento de operaciones del mismo día y comparar estrategias de calibración de puntajes.
+
+Para avanzar hacia un caso empresarial real, sería necesario disponer de datos de operaciones y revisiones efectivas, estimar el costo de falsas alarmas y fraudes no detectados, medir tiempos de respuesta y contrastar los modelos con procesos de revisión existentes. Estos pasos son propuestas de trabajo y no forman parte de los experimentos realizados.
